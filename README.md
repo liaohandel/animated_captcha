@@ -1,13 +1,16 @@
 測試網頁(CAPTCHA-gui)伺服器架構
+
 一、	Web api http://localhost:5000/ (docker container: captcha_web)
 1.	/ 		index.html       [Animated CAPTCHA Test GUI  ];
 2.	/ setgui	             setweb.html      [Animated CAPTCHA Build TOOL];
 3.	/ dataset  	dataset_gui.html [Animated CAPTCHA  DataSet   ];
 4.	/getpasswd	get_password_api()   [get passwd json by Agents accest] ;
+
 二、	MySQL#MaridDB  (docker container: ,captcha_db)
 1.	Ip = http://localhost:3306;
 2.	DB = passwddb , Table =userlog   ;
 3.	DB = passwddb , Table=datasetlog;
+   
 三、	Web api ( http://localhost:5100/): (docker container:  agent_client) Agent 對驗證碼操作的中繼工具 Agent_client_Tool  三功能(圖 4.8)。
 1.	Working 驅動測試工具介面;
 2.	DataSet 驅動測試工具介面;
