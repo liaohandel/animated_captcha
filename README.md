@@ -1,3 +1,19 @@
-隨著高效能多模態大型語言模型(MLLMs)透過推論 API 與開源代理人(Open-Source Agents)形式廣泛普及,傳統靜態文字型驗證碼已無法有效區辨人機;為因應低成本、規模化的自動化破解威脅,本研究提出一套可參數化的「動態驗證碼(Animated CAPTCHA)」分層架構,結合視覺混淆層、閃光動畫層,及以七項參數(P0–P6)動態組合難度的調整機制,並利用人類與機器在視覺選擇性注意與時序資訊整合能力上的根本差異作為人機區辨依據,同時以開源代理人驅動的閉環測試流程(Continuous Refinement Loop)及工具,持續探測模型盲點可不定時手動操作測試驗證碼的有效性評估;實驗涵蓋多模態大型語言模型 API 與開源代理人框架,結果顯示在加入干擾字元的條件下,可將開源代理人與多模態模型的破解率壓低至 3% 以下(無干擾組為 71–87%),明顯低於傳統靜態文字驗證碼對照組最高約 71% 的破解率,同時真人使用者在合理密碼長度下維持約 80–90% 的通過率與約 12–19 秒 的平均完成時間;綜言之,本研究提出可量化、參數化的動態驗證碼架構,實驗使用開源代理人納入驗證碼之有效性評估,並藉由閉環測試流程實現系統對 MLLM 持續演進的長效適應與防禦有效性。
+測試網頁(CAPTCHA-gui)伺服器架構
+一、	Web api http://localhost:5000/ (docker container: captcha_web)
+1.	/ 		index.html       [Animated CAPTCHA Test GUI  ];
+2.	/ setgui	             setweb.html      [Animated CAPTCHA Build TOOL];
+3.	/ dataset  	dataset_gui.html [Animated CAPTCHA  DataSet   ];
+4.	/getpasswd	get_password_api()   [get passwd json by Agents accest] ;
+二、	MySQL#MaridDB  (docker container: ,captcha_db)
+1.	Ip = http://localhost:3306;
+2.	DB = passwddb , Table =userlog   ;
+3.	DB = passwddb , Table=datasetlog;
+三、	Web api ( http://localhost:5100/): (docker container:  agent_client) Agent 對驗證碼操作的中繼工具 Agent_client_Tool  三功能(圖 4.8)。
+1.	Working 驅動測試工具介面;
+2.	DataSet 驅動測試工具介面;
+3.	測試進度狀態顯示介面;
+
+請Hermes 依上訴架構 使用 Docker-compse 建立 Captcha_gui , mariaDB , Agent-client 三個容器
+
 <img width="1024" height="640" alt="Hermes-agent-flowchartx1" src="https://github.com/user-attachments/assets/6a045db5-f066-4f1a-ae1f-6db93f5abaa8" />
 <img width="800" height="800" alt="sp_a5c2tenp6_033" src="https://github.com/user-attachments/assets/a840e8db-98a9-409f-a253-4ab1d5e02819" />
