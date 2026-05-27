@@ -1,0 +1,7 @@
+# 含真實金鑰，切勿提交
+apikey_model.json
+# 測試輸出
+reports/
+# Python
+__pycache__/
+*.pyc

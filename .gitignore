@@ -1,0 +1,17 @@
+# --- secrets ---
+agent_client/apikey_model.json
+agent_client/apikey_model.json.bak
+*.env
+
+# --- generated test outputs ---
+agent_client/reports/
+
+# --- large generated datasets (publish separately via release/LFS, not in code repo) ---
+captcha_gui/static/demo/
+captcha_gui/templates/demo/
+captcha_gui/static/passwd_lib/
+captcha_gui/templates/passwd_lib/
+
+# --- python ---
+__pycache__/
+*.pyc

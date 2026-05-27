@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated CAPTCHA Tool</title>
+    <style>
+        :root {
+            --navy: #1e2761;
+            --navy-dark: #161d4a;
+            --ice: #cadcfc;
+            --accent: #4f80ff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+            font-family: "Segoe UI", Arial, "Microsoft JhengHei", sans-serif;
+            color: #fff;
+            padding: 24px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 460px;
+            text-align: center;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        }
+        .card h1 {
+            margin: 0 0 6px;
+            font-size: 1.9em;
+            letter-spacing: 1px;
+        }
+        .card p.subtitle {
+            margin: 0 0 36px;
+            color: var(--ice);
+            font-size: 0.95em;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        button.tool-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 1.15em;
+            font-weight: bold;
+            color: var(--navy);
+            background: var(--ice);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.2s ease;
+        }
+        button.tool-btn:hover {
+            background: #fff;
+            transform: translateY(-2px);
+        }
+        button.tool-btn .label { letter-spacing: 1px; }
+        button.tool-btn .desc {
+            font-size: 0.72em;
+            font-weight: normal;
+            color: #555;
+        }
+        .footer {
+            margin-top: 34px;
+            font-size: 0.8em;
+            color: rgba(202, 220, 252, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Animated CAPTCHA Tool</h1>
+        <p class="subtitle">動態驗證碼工具入口</p>
+
+        <div class="btn-group">
+            <button type="button" class="tool-btn"
+                    onclick="openTool('http://www.ezai.tw:5000', 'Show')">
+                <span class="label">Show</span>
+                <span class="desc">測試 GUI</span>
+            </button>
+
+            <button type="button" class="tool-btn"
+                    onclick="openTool('http://www.ezai.tw:5000/setgui', 'Tool')">
+                <span class="label">TOOL</span>
+                <span class="desc">參數 Build Demo</span>
+            </button>
+
+            <button type="button" class="tool-btn"
+                    onclick="openTool('http://www.ezai.tw:5000/dataset', 'Dataset')">
+                <span class="label">Dataset</span>
+                <span class="desc">資料集測試</span>
+            </button>
+        </div>
+
+        <div class="footer">www.ezai.tw:5000 &middot; Animated CAPTCHA</div>
+    </div>
+
+    <script>
+        function openTool(url, name) {
+            // 彈出新視窗連到指定 URL
+            const w = 1280, h = 800;
+            const left = Math.max(0, (screen.width  - w) / 2);
+            const top  = Math.max(0, (screen.height - h) / 2);
+            const win = window.open(
+                url,
+                'AnimatedCaptcha_' + name,
+                `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+            );
+            if (win) {
+                win.focus();
+            } else {
+                // 若被瀏覽器阻擋彈出視窗，改為直接開新分頁
+                window.open(url, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>

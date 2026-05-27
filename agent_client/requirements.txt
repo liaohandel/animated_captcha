@@ -1,0 +1,6 @@
+flask>=2.3
+requests>=2.31
+Pillow>=10.0
+# 選用：更強的變色偵測（幀差法 / 紅色通道過濾）
+opencv-python-headless>=4.8
+# 系統需另安裝 ffmpeg (CLI)；若無，frame_extractor 會自動改用 Pillow 抽幀

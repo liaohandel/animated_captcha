@@ -1,0 +1,31 @@
+{
+  "_comment": "複製此檔為 apikey_model.json 並填入真實金鑰。models 陣列可放多個，網頁/API 可下拉選用。",
+  "openrouter_base_url": "https://openrouter.ai/api/v1",
+  "ezai_base_url": "http://localhost:5000",
+  "operator": {
+    "name": "hermes",
+    "age": 2
+  },
+  "models": [
+    {
+      "label": "Gemini3-Flash-Preview",
+      "api_key": "sk-or-v1-?1",
+      "model": "google/gemini-3-flash-preview"
+    },
+    {
+      "label": "Google:Gemini 2.5 Flash",
+      "api_key": "sk-or-v1-?2",
+      "model": "google/gemini-2.5-flash"
+    },
+      "label": "Meta:Llama4-Maverick",
+      "api_key": "sk-or-v1-?3",
+      "model": "meta-llama/llama-4-maverick"
+    }
+  ],
+  "nodebb": {
+    "enabled": false,
+    "base_url": "http://localhost:4567",
+    "token": "??4",
+    "category": "captcha_test_report"
+  }
+}

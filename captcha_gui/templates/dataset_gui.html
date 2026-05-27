@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated CAPTCHA Dataset GUI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px; /* Adjust max width to accommodate larger GIF area */
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header .age-selection {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .header .age-selection label {
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .header .age-selection input[type="radio"] {
+            margin-right: 5px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .header .spotlight-captcha {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .main-content {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .left-panel {
+            flex: 2;
+            border: 2px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 800px;
+            height: 500px;
+            background-color: #f7f7f7;
+            margin-right: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            display: block;
+        }
+
+        .left-panel .test-complete-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            font-weight: bold;
+            color: #007bff; /* Blue text */
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+
+        .right-panel {
+            flex: 1;
+            padding-left: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-panel .display-field {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .right-panel .display-value {
+            font-weight: normal;
+            margin-left: 5px;
+        }
+
+        .right-panel .reset-captcha-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-top: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        .right-panel .reset-captcha-button:hover {
+            background-color: #45a049;
+        }
+
+        .right-panel .reset-captcha-button img {
+            width: 25px;
+            height: 25px;
+            margin-right: 8px;
+            vertical-align: middle;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Style for instruction text */
+        .right-panel .instruction-text-right {
+            font-size: 1em;
+            color: #555;
+            margin-top: 15px; /* Spacing from button above */
+            margin-bottom: 15px; /* Spacing from input field below */
+            text-align: left;
+            width: 100%;
+        }
+
+        .footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .footer .input-group-and-button {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .footer .input-group {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+
+        .footer .input-group label {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        .footer .input-group input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        .footer button[type="button"] { /* Changed to type="button" to prevent default form submission */
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+        }
+
+        .footer button[type="button"]:hover {
+            background-color: #0d8bf2;
+        }
+
+        /* Message Overlay Styles */
+        #messageOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
+
+        #messageBox {
+            background-color: white;
+            padding: 30px 50px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+        }
+        #messageBox.pass {
+            color: #28a745; /* Green for PASS */
+        }
+        #messageBox.err {
+            color: #dc3545; /* Red for ERR */
+        }
+        #messageBox.exit {
+            color: #007bff; /* Blue for EXIT */
+        }
+
+        /* DB Log Panel */
+        .db-log-panel {
+            margin-top: 15px;
+            padding: 10px 14px;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.82em;
+            max-height: 180px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+        .db-log-panel .log-title {
+            color: #569cd6;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .db-log-panel .log-entry {
+            border-bottom: 1px solid #333;
+            padding: 3px 0;
+        }
+        .db-log-panel .log-entry:last-child {
+            border-bottom: none;
+        }
+        .db-log-panel .log-ok {
+            color: #4ec9b0;
+        }
+        .db-log-panel .log-err {
+            color: #f44747;
+        }
+        .db-log-panel .log-field {
+            color: #9cdcfe;
+        }
+        .db-log-panel .log-val {
+            color: #ce9178;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header .age-selection {
+                margin-bottom: 15px;
+            }
+            .main-content {
+                flex-direction: column;
+            }
+            .left-panel {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 800 / 500;
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            .right-panel {
+                width: 100%;
+                padding-left: 0;
+            }
+            .footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .footer .input-group-and-button {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .footer .input-group {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            .footer button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="age-selection">
+                <span>Operator:</span>
+                <label><input type="radio" name="operatorType" value="user" checked> user</label>
+                <label><input type="radio" name="operatorType" value="hermes"> hermes</label>
+                <label style="margin-left:10px;">model:
+                    <input type="text" id="modelInput" name="modelName" value="" placeholder="" style="width:160px;">
+                </label>
+            </div>
+            <div class="spotlight-captcha">
+                DataSet Animated CAPTCHA V:1.2
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <img id="gifDisplay" src="" alt="Animated CAPTCHA display area"
+                     style="background:#f7f7f7;" />
+                <div id="testCompleteMessage" class="test-complete-message">
+                    Test Complete
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="display-field">NO: <span id="noValue" class="display-value">1</span></div>
+                <div class="display-field">SCORT: <span id="scortValue" class="display-value">0</span></div>
+                <div class="display-field">TIME: <span id="timerDisplay" class="display-value">00:00</span></div>
+
+                <button type="button" class="reset-captcha-button" onclick="resetCaptcha()">
+                    <img src="https://via.placeholder.com/30x30?text=🔄" alt="Reload CAPTCHA" />
+                    <span>Reset CAPTCHA</span>
+                </button>
+
+                <div class="instruction-text-right">
+                    Please enter the password by displaying the red ball and black dot in sequence, and then press the Login button.
+                </div>
+
+                <div class="dataset-selection" style="width:100%;margin-top:15px;font-weight:bold;border-top:1px solid #eee;padding-top:12px;">
+                    <span style="display:block;margin-bottom:8px;">DataSet Path:</span>
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px 10px;">
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a3c0fen" checked> pt_a3c0fen</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a3c2fen"> pt_a3c2fen</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a3c2ten"> pt_a3c2ten</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a3c2tenp6"> pt_a3c2tenp6</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a4c0fen"> pt_a4c0fen</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a4c2fen"> pt_a4c2fen</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a4c2ten"> pt_a4c2ten</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a4c2tenp6"> pt_a4c2tenp6</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a5c0fen"> pt_a5c0fen</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a5c2fen"> pt_a5c2fen</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a5c2ten"> pt_a5c2ten</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pt_a5c2tenp6"> pt_a5c2tenp6</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pc1jpg"> pc1jpg</label>
+                        <label style="font-weight:normal;font-size:0.82em;white-space:nowrap;"><input type="radio" name="datasetPath" value="pc3jpg"> pc3jpg</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="input-group-and-button">
+                <div class="input-group">
+                    <label for="keyinCode">Enter CAPTCHA<br>(Keyin Code)</label>
+                    <input type="text" id="keyinCode" name="keyinCode" placeholder="">
+                </div>
+                <button type="button" onclick="handleLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Overlay -->
+    <div id="messageOverlay">
+        <div id="messageBox"></div>
+    </div>
+
+    <script>
+        // Global variables
+        let timerInterval;
+        let secondsElapsed = 0;
+        let noValueCount = 1; // NO count variable, initial value is 1
+        let scortValueCount = 0; // SCORT count variable, initial value is 0
+        let spinfo = {}; // Global variable to store API response JSON
+
+        // Display update functions
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(secondsElapsed);
+        }
+
+        function updateNoDisplay() {
+            document.getElementById('noValue').textContent = noValueCount;
+            checkGifDisplay(); // Check GIF display status every time NO value is updated
+        }
+
+        function updateScortDisplay() {
+            document.getElementById('scortValue').textContent = scortValueCount;
+        }
+
+        // Timer control function
+        function startTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            secondsElapsed = 0;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        // GIF display control function
+        function checkGifDisplay() {
+            const gifDisplay = document.getElementById('gifDisplay');
+            const testCompleteMessage = document.getElementById('testCompleteMessage');
+
+            // Test range: LEV1..LEV15 (passwd_tab[0..14]); NO=16 means test finished.
+            if (noValueCount > 100) {
+                gifDisplay.style.display = 'none'; // Hide GIF
+                testCompleteMessage.style.display = 'block'; // Show "Test Complete" message
+            } else {
+                gifDisplay.style.display = 'block'; // Show GIF
+                testCompleteMessage.style.display = 'none'; // Hide "Test Complete" message
+            }
+        }
+
+        // Function to show custom message overlay
+        function showMessage(text, type) { // type can be 'pass', 'err', 'exit'
+            const overlay = document.getElementById('messageOverlay');
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = text;
+            messageBox.className = ''; // Clear previous classes
+            messageBox.classList.add(type); // Add the specific class for styling
+            overlay.style.display = 'flex'; // Show the overlay
+        }
+
+        // Function to hide custom message overlay
+        function hideMessage() {
+            document.getElementById('messageOverlay').style.display = 'none';
+        }
+
+        // Event handler functions
+
+        // CAPTCHA reset button click event
+        async function resetCaptcha() {
+            document.getElementById('keyinCode').value = ''; // Clear input field
+            startTimer(); // Reset and start timer
+
+            console.log('CAPTCHA reset, input field cleared, timer reset and started! NO and SCORT values remain unchanged.');
+
+            // Call /getdataset API with selected dataset path and current lev (1..100)
+            const dsEl = document.querySelector('input[name="datasetPath"]:checked');
+            const datasetPath = dsEl ? dsEl.value : 'pt_a3c0fen';
+            const levNow = (noValueCount < 1) ? 1 : noValueCount;
+            const apiUrl = `/getdataset?path=${encodeURIComponent(datasetPath)}&lev=${levNow}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === 'success' && data.gif_url) {
+                    document.getElementById('gifDisplay').src = data.gif_url; // Update GIF image source
+                    spinfo = data; // Store the entire JSON response in spinfo
+                    console.log('New GIF loaded:', data.gif_url);
+                    console.log('Generated password:', data.passwd); // Display generated password
+                    console.log('spinfo variable:', spinfo); // Log spinfo for verification
+                } else {
+                    console.error('Failed to get new GIF:', data.message || 'Unknown error');
+                    alert('Failed to get new CAPTCHA!');
+                }
+            } catch (error) {
+                console.error('Failed to call /getdataset API:', error);
+                alert('CAPTCHA reset failed!');
+            } finally {
+                // Automatically focus the keyin_Code input so the user can start typing immediately
+                document.getElementById('keyinCode').focus();
+            }
+        }
+
+        // Login button click event
+        function handleLogin() {
+            const keyinCodeInput = document.getElementById('keyinCode');
+            const enteredPassword = keyinCodeInput.value.toUpperCase(); // Convert input to uppercase
+            const correctPassword = spinfo.passwd; // Get the correct password from spinfo
+
+            let isCorrect = false;
+            if (correctPassword && enteredPassword === correctPassword) {
+                isCorrect = true;
+            }
+
+            // --- Collect parameters required by the /savedata API ---
+            // Map operator type: user -> 1, hermes -> 2 (re-using the existing `age` column for operator id)
+            const selectedOperatorElement = document.querySelector('input[name="operatorType"]:checked');
+            let operatorValue = 0; // Default to 0 if nothing is selected
+            if (selectedOperatorElement) {
+                switch (selectedOperatorElement.value) {
+                    case 'user':
+                        operatorValue = 1;
+                        break;
+                    case 'hermes':
+                        operatorValue = 2;
+                        break;
+                    default:
+                        operatorValue = 0; // Fallback
+                }
+            }
+            const modelName = document.getElementById('modelInput').value || '';
+            const passFlag = isCorrect ? 1 : 0;
+            const currentTimeInSeconds = secondsElapsed;
+
+            // --- Call the /savedata API via POST (fire-and-forget) ---
+            const dsElSave = document.querySelector('input[name="datasetPath"]:checked');
+            const savePayload = {
+                age: operatorValue,
+                no: noValueCount,
+                passflag: passFlag,
+                timecount: currentTimeInSeconds,
+                model: modelName,
+                datasetpath: dsElSave ? dsElSave.value : 'pt_a3c0fen'
+            };
+            fetch('/savedataset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(savePayload)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Savedata API response not OK:', response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Savedata API response:', data);
+                })
+                .catch(error => {
+                    console.error('Failed to call Savedata API:', error);
+                });
+            // --- API call dispatched, continue with the rest of the flow ---
+
+
+            // Display result message (PASS/ERR)
+            const messageText = isCorrect ? `PASS (${noValueCount})` : `ERR (${noValueCount})`;
+            showMessage(messageText, isCorrect ? 'pass' : 'err'); // Pass 'pass' or 'err' as type
+
+            // Update SCORT
+            if (isCorrect) {
+                scortValueCount += 10;
+            }
+            updateScortDisplay(); // Update SCORT display
+
+            // First delay for PASS/ERR message (0.5s), then advance to next dataset item
+            setTimeout(() => {
+                hideMessage();
+                noValueCount++;            // advance lev (1..100)
+                if (noValueCount > 100) {  // dataset (100 items) finished
+                    showMessage("EXIT !", 'exit');
+                    setTimeout(() => {
+                        hideMessage();
+                        noValueCount = 1;     // restart from lev 1
+                        scortValueCount = 0;
+                        updateScortDisplay();
+                        updateNoDisplay();
+                        resetCaptcha();
+                        keyinCodeInput.value = '';
+                        console.log('Dataset test finished, reset to lev 1.');
+                    }, 2000);
+                } else {
+                    updateNoDisplay();        // updates lev display + checkGifDisplay
+                    resetCaptcha();           // load next dataset item via /getdataset
+                    keyinCodeInput.value = '';
+                    console.log('Proceeding to next dataset item (lev=' + noValueCount + ').');
+                }
+            }, 500);
+        }
+
+        // Page initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNoDisplay();    // Initialize lev display
+            updateScortDisplay(); // Initialize SCORT display
+            startTimer();         // Start timer on page load
+            checkGifDisplay();    // Initialize GIF display visibility
+            resetCaptcha();       // Load first dataset item (lev 1)
+
+            // Pressing [Enter] in the CAPTCHA input acts as clicking [Login]
+            const keyinCodeInput = document.getElementById('keyinCode');
+            keyinCodeInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();   // avoid any implicit form submit / newline
+                    handleLogin();        // trigger the same compare + /savedataset flow
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Agent Skill：Animated CAPTCHA working 測試任務指令	
+[http://localhost:5000/]
+使用「抽幀分析法」 進行 Animated CAPTCHA Test http://localhost:5000  勾選 Hermes 填入(model)_ffmpg 模擬人以視覺分析 
+依序進行 lev1 .. lev15 的 login 測試 每lev 解出答案後填入 Login 並記錄產生報表 依 ani_captcha_testreport.txt 格式進行
+(model)_ffmpg_(辨識目標#視覺模型辨識結果) 更新加入 model 欄位宜並記錄
+
+ /getpasswd   API 讀取標準答案後  辨識目標	視覺模型辨識結果 進行比對 進行評論說明  
+	{
+		"status": "success",
+		"message": "GIF 已根據手動參數生成",
+		"gif_url": "/static/passwd_lib/act-...gif",
+		"passwd": "XKQM"
+	}
+	
+# Agent Skill：Animated CAPTCHA DataSet 測試任務指令	
+[http://localhost:5000/dataset]
+使用「抽幀分析法」 進行 DataSet Animated CAPTCHA http://localhost:5000  勾選 Hermes 填入(model)_ffmpg 模擬人以視覺分析 
+勾選 測試指定的 Dataset Path 依序進行 lev1 .. lev100 的 login 測試 每lev 解出答案後填入 Login 並記錄產生報表 
+依 ani_captcha_testreport.txt 格式進行
+(model)_ffmpg_(辨識目標#視覺模型辨識結果) 更新加入 model 欄位宜並記錄
+
+ /getdataset   API 讀取標準答案後  辨識目標	視覺模型辨識結果 進行比對 進行評論說明	
+ /getdataset  API
+	{
+		"status": "success",
+		"message": " index,data path, load ok ",
+		"index": "1",
+		"datasetpath": "pt_a3c0fen",
+		"gif_url": "/static/demo/pt_a3c0fen/<gif-filename>",
+		"passwd": "XKQM"
+	}
+	
+	

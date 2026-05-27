@@ -1,0 +1,37 @@
+services:
+  db:
+    image: mariadb:10.6
+    container_name: captcha_db
+    ports:
+      - "3306:3306"
+    networks:
+      captcha_net:
+        ipv4_address: 172.21.0.11
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: passwddb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ???
+    volumes:
+      - ./passwddb_sql:/docker-entrypoint-initdb.d
+      - ./edata:/var/lib/mysql
+    restart: always
+
+  web:
+    build: .
+    container_name: captcha_web
+    ports:
+      - "5000:5000"
+    networks:
+      captcha_net:
+        ipv4_address: 172.21.0.12
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /usr/share/fonts:/usr/share/fonts:ro
+    restart: always
+
+networks:
+  captcha_net:
+    external: true

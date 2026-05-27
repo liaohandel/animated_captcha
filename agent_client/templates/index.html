@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animated CAPTCHA 分析服務</title>
+<style>
+  :root { --navy:#1e2761; --ice:#cadcfc; --ok:#28a745; --err:#dc3545; --warn:#e0a800; }
+  * { box-sizing:border-box; }
+  body { font-family:"Segoe UI",Arial,"Microsoft JhengHei",sans-serif;
+         margin:0; background:#0f1530; color:#e8edff; padding:24px; }
+  h1 { font-size:1.4em; margin:0 0 4px; }
+  .sub { color:#8fa3d8; margin-bottom:20px; font-size:.9em; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .card { background:#1b2347; border:1px solid #2c3768; border-radius:10px; padding:18px; }
+  .card h2 { font-size:1.05em; margin:0 0 12px; color:var(--ice); }
+  label { display:block; font-size:.85em; margin:10px 0 4px; color:#aab8e8; }
+  select, input { width:100%; padding:8px; border-radius:6px; border:1px solid #34406f;
+                  background:#11183a; color:#e8edff; font-size:.95em; }
+  .row { display:flex; gap:10px; }
+  .row > div { flex:1; }
+  button { margin-top:14px; width:100%; padding:11px; border:none; border-radius:6px;
+           background:var(--navy); color:#fff; font-weight:bold; font-size:1em; cursor:pointer; }
+  button:hover { background:#2a3a8c; }
+  button.stop { background:#5a2b39; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:.78em; }
+  .b-run { background:#243a6b; } .b-done{ background:#1d4a2c;} .b-err{background:#5a2b39;} .b-stop{background:#5a4a1d;}
+  table { width:100%; border-collapse:collapse; font-size:.82em; margin-top:8px; }
+  th,td { border-bottom:1px solid #2c3768; padding:5px 6px; text-align:left; }
+  .st-正確{color:var(--ok);font-weight:bold;} .st-半對{color:var(--warn);} .st-誤差{color:var(--err);}
+  .bar { height:10px; background:#11183a; border-radius:6px; overflow:hidden; margin-top:6px;}
+  .bar > i { display:block; height:100%; background:var(--ice); width:0%; }
+  pre { white-space:pre-wrap; background:#11183a; padding:10px; border-radius:6px;
+        max-height:280px; overflow:auto; font-size:.78em; }
+  .muted { color:#8fa3d8; font-size:.8em; }
+</style>
+</head>
+<body>
+  <h1>Animated CAPTCHA 分析服務</h1>
+  <div class="sub" id="cfgLine">載入設定中…</div>
+
+  <div class="grid">
+    <!-- Working -->
+    <div class="card">
+      <h2>① Animated CAPTCHA — Working 測試</h2>
+      <div class="muted">http://www.ezai.tw:5000/ ・ lev 1…15 ・ /getpasswd → /savedata</div>
+      <label>視覺模型 (OpenRouter)</label>
+      <select id="wModel"></select>
+      <div class="row">
+        <div><label>起始 lev</label><input id="wFrom" type="number" value="1" min="1" max="15"></div>
+        <div><label>結束 lev</label><input id="wTo" type="number" value="15" min="1" max="15"></div>
+      </div>
+      <button onclick="runWorking()">▶ 啟動 Working 測試</button>
+    </div>
+
+    <!-- Dataset -->
+    <div class="card">
+      <h2>② Animated CAPTCHA — DataSet 測試</h2>
+      <div class="muted">http://www.ezai.tw:5000/dataset ・ 14組×100 ・ /getdataset → /savedataset</div>
+      <label>視覺模型 (OpenRouter)</label>
+      <select id="dModel"></select>
+      <label>DataSet Path（多選；不選=全部 14 組）</label>
+      <select id="dPaths" multiple size="6"></select>
+      <div class="row">
+        <div><label>起始 lev</label><input id="dFrom" type="number" value="1" min="1" max="100"></div>
+        <div><label>結束 lev</label><input id="dTo" type="number" value="100" min="1" max="100"></div>
+      </div>
+      <button onclick="runDataset()">▶ 啟動 DataSet 測試</button>
+    </div>
+  </div>
+
+  <!-- Jobs -->
+  <div class="card" style="margin-top:18px;">
+    <h2>③ 執行中 / 歷史工作</h2>
+    <div id="jobs"></div>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+async function loadConfig() {
+  const c = await (await fetch('/api/config')).json();
+  const m = await (await fetch('/api/models')).json();
+  $('cfgLine').textContent =
+    `目標:${c.ezai_base_url} ・ Operator:${c.operator_name}(age=${c.operator_age}) ` +
+    `・ 模型數:${c.models_loaded} ・ NodeBB:${c.nodebb_enabled?'啟用':'關閉'} ・ 設定:${m.config_path||'(未找到 apikey_model.json)'}`;
+  const opts = (m.models.length?m.models:['(請建立 apikey_model.json)'])
+                 .map(x=>`<option>${x}</option>`).join('');
+  $('wModel').innerHTML = opts; $('dModel').innerHTML = opts;
+  $('dPaths').innerHTML = c.dataset_paths.map(p=>`<option value="${p}">${p}</option>`).join('');
+}
+
+async function runWorking() {
+  const levels = rangeArr($('wFrom').value, $('wTo').value);
+  await fetch('/api/run/working', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({model:$('wModel').value, levels})});
+  pollJobs();
+}
+async function runDataset() {
+  const sel = [...$('dPaths').selectedOptions].map(o=>o.value);
+  await fetch('/api/run/dataset', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({model:$('dModel').value, paths: sel.length?sel:null,
+                          lev_from:$('dFrom').value, lev_to:$('dTo').value})});
+  pollJobs();
+}
+function rangeArr(a,b){a=+a;b=+b;const r=[];for(let i=a;i<=b;i++)r.push(i);return r;}
+
+async function stopJob(id){ await fetch(`/api/jobs/${id}/stop`,{method:'POST'}); }
+
+function badge(s){
+  const map={running:'b-run',done:'b-done',error:'b-err',stopped:'b-stop',stopping:'b-stop'};
+  return `<span class="badge ${map[s]||''}">${s}</span>`;
+}
+
+async function pollJobs() {
+  const jobs = await (await fetch('/api/jobs')).json();
+  if (!jobs.length){ $('jobs').innerHTML='<div class="muted">尚無工作。</div>'; return; }
+  let html='';
+  for (const j of jobs.slice().reverse()) {
+    const full = await (await fetch(`/api/jobs/${j.id}`)).json();
+    const pct = full.total? Math.round(full.done/full.total*100):0;
+    html += `<div style="margin-bottom:14px;border-bottom:1px solid #2c3768;padding-bottom:10px;">
+      <b>#${full.id}</b> ${full.test_type} ・ 模型:${full.model||'-'} ${badge(full.status)}
+      ${full.status==='running'?`<button class="stop" style="width:auto;display:inline;padding:3px 10px;margin:0 0 0 8px;" onclick="stopJob('${full.id}')">停止</button>`:''}
+      <div class="muted">${full.done}/${full.total} (${pct}%) ${full.datasetpath?'・ '+full.datasetpath:''}</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>`;
+    if (full.last) {
+      const L=full.last;
+      html += `<div class="muted">最後一題 Lev ${L.level}: 目標=${L.ground_truth} / 辨識=${L.recognized||'-'}
+               <span class="st-${L.status}">${L.status}</span></div>`;
+    }
+    if (full.report) {
+      html += `<details><summary class="muted">測試報表（${full.report.txt}）</summary><pre>${full.report.text}</pre></details>`;
+    }
+    if (full.error) html += `<div class="st-誤差">錯誤：${full.error}</div>`;
+    html += `</div>`;
+  }
+  $('jobs').innerHTML = html;
+}
+
+loadConfig();
+pollJobs();
+setInterval(pollJobs, 2500);
+</script>
+</body>
+</html>
